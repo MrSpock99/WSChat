@@ -10,7 +10,8 @@ private const val NORMAL_CLOSURE_STATUS = 1000
 
 class SocketManager(
     private val context: Context,
-    private var messageCallback: (String?, Throwable?) -> Unit
+    private var messageCallback: (String?, Throwable?) -> Unit,
+    private var getMessagesCallback: (String?, Throwable?) -> Unit
 ) {
     private val client: OkHttpClient = OkHttpClient().newBuilder().build()
     private lateinit var socket: WebSocket
@@ -34,7 +35,11 @@ class SocketManager(
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 super.onMessage(webSocket, text)
-                messageCallback(text, null)
+                if (text == "{\"status\": \"ok\"}"){
+                    messageCallback(text, null)
+                }else if (text.contains("items")){
+                    getMessagesCallback(text, null)
+                }
                 Log.d("Socket", "onMessage $text")
             }
 
@@ -54,9 +59,9 @@ class SocketManager(
         socket = client.newWebSocket(request, listener)
     }
 
-    fun getMessages() {
-        val json = "{ \"history\": 5 }"
-        //socket.send(json)
+    fun getMessages(count: Int) {
+        val json = "{ \"history\": { \"limit\": $count} }"
+        socket.send(json)
     }
 
     fun sendMessage(message: String) {

@@ -20,9 +20,12 @@ class ChatActivity : AppCompatActivity() {
         initRecycler()
         btn_send_message.setOnClickListener {
             viewModel.sendMessage(et_message.text.toString())
+            et_message.setText("")
         }
-        viewModel.messagesLiveData.observe(this, Observer {
-            adapter?.updateData(it)
+        viewModel.getMessagesLiveData.observe(this, Observer {
+            if (it.data != null){
+                adapter?.updateData(it.data.toMutableList())
+            }
         })
         viewModel.messageSendLiveData.observe(this, Observer {
             if (it.data != null) {
@@ -34,10 +37,11 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun initRecycler() {
-        val deviceId: String = getSharedPreferences(Const.PREFERENCES, Context.MODE_PRIVATE)
-            .getString(Const.DEVICE_ID, "").toString()
+        val username: String = getSharedPreferences(Const.PREFERENCES, Context.MODE_PRIVATE)
+            .getString(Const.USERNAME, "").toString()
 
-        adapter = MessageAdapter(deviceId, arrayListOf())
+        adapter = MessageAdapter(username, arrayListOf())
+        adapter?.setHasStableIds(true)
         rv_messages.adapter = adapter
     }
 }

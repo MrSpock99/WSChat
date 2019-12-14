@@ -35,7 +35,7 @@ class MessageAdapter internal constructor(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (uidFrom != data[position].fromUid) {
+        return if (uidFrom != data[position].user) {
             R.layout.item_message_to
         } else {
             R.layout.item_message_from
@@ -43,7 +43,7 @@ class MessageAdapter internal constructor(
     }
 
     override fun getItemId(position: Int): Long {
-        return position.toLong()
+        return data[position].id
     }
 
     fun updateData(list: MutableList<Message>) {
@@ -55,7 +55,7 @@ class MessageAdapter internal constructor(
     inner class MessageViewHolder : RecyclerView.ViewHolder(view!!) {
         internal fun setMessage(message: Message) {
             val textView = view?.findViewById<TextView>(R.id.text_view)
-            textView?.text = message.messageText
+            textView?.text = message.message
         }
     }
 
